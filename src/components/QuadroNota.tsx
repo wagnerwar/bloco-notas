@@ -3,6 +3,7 @@ import {  Text, View, StyleSheet } from 'react-native';
 import { Nota } from '../domain/enums';
 import { Tema } from '../domain/enums';
 import TrashIcone from "../assets/trash.svg";
+import EditIcone from "../assets/edit.svg";
 
 export function QuadroNota(props:any) {
     return (       
@@ -11,8 +12,11 @@ export function QuadroNota(props:any) {
                 <Text style={stylesHome.textoQuadro}>{props.nota.titulo}</Text>
             </View>
             <View style={{alignSelf: 'flex-end',  width: '10%'}}>
+                <EditIcone style={stylesHome.iconeQuadro} width={30} height={30} />
+            </View>
+            <View style={{alignSelf: 'flex-end',  width: '10%'}}>
                 <TrashIcone style={stylesHome.iconeQuadro} width={30} height={30} />
-            </View>         
+            </View>
         </View> 
     );
 }

@@ -1,35 +1,60 @@
-import React, { useContext, useState, useEffect, Component, useMemo } from 'react';
+import React, { useContext, useState, useEffect, Component, useMemo, useCallback } from 'react';
 import { Switch, Text, View, TextInput, Pressable, Alert, ScrollView, StyleSheet } from 'react-native';
 import { Nota, Tema } from '../domain/enums';
 import { QuadroNota } from '../components/QuadroNota';
 import { BotaoCirculo } from '../components/BotaoCirculo';
 import { useNavigation } from '@react-navigation/native';
 import { FlatList } from 'react-native';
-
+import { DadosService } from '../services/DadosService';
+import { useFocusEffect } from '@react-navigation/native';
+import { ModalAlerta } from '../components/ModalAlerta';
+import { Loading } from '../components/Loading';
 export function Homecreen() {
     const [notas, setNotas] = useState<Nota[] | null>([])
     const navigation = useNavigation();
+    const [processando, setProcessando] = useState<boolean>(false);
+    const [msg, setMsg] = useState<string>("");
+    const [exibirMsg, setExibirMsg] = useState<boolean>(false);
 
-    useEffect(function(){
+    useFocusEffect(
+      useCallback(() => {
         carregarNotas();
-    }, [])
+      }, [])
+    );
 
     const carregarNotas = async () => {
-        const lista:Nota[] = [];
-        lista.push({ id: 1, titulo: 'Titulo um', conteudo: 'Teste' });
-        lista.push({ id: 2, titulo: 'Titulo dois', conteudo: 'Teste' });
-        lista.push({ id: 3, titulo: 'Titulo tres', conteudo: 'Teste' });
-        lista.push({ id: 4, titulo: 'Titulo um', conteudo: 'Teste' });
-        lista.push({ id: 5, titulo: 'Titulo dois', conteudo: 'Teste' });
-        lista.push({ id: 6, titulo: 'Titulo tres', conteudo: 'Teste' });
-        setNotas(lista)
+      let lista:Nota[] = [];
+      try {
+        setProcessando(true);
+        setTimeout(async () => {
+          lista = await DadosService.GetNotas();
+          console.log(lista);
+          setNotas(lista);
+          setProcessando(false);
+        }, (1000));
+      
+      } catch (error) {
+        console.error(error);
+        setProcessando(false);
+        exibirMensagem("Erro");
+      }
     };
 
     const adicionarNota = async() => {
       navigation.navigate("Cadastro");
     };
 
-    return (
+    const exibirMensagem = (m:string) => {
+      setExibirMsg(true);
+      setMsg(m);
+    }
+
+    const ocultarMensagem = () => {
+      setExibirMsg(false);
+      setMsg("");
+    }
+
+    return  (
         <View style={stylesHome.tela}>
             <Text style={stylesHome.titulo}>Listagem de notas</Text>
             <FlatList 
@@ -39,18 +64,14 @@ export function Homecreen() {
               return <View key={item.item.id}>
                 <QuadroNota nota={item.item}   />
               </View>
-            } } />
-            {
-                /*notas != null 
-                && notas.map((i) => {
-                   return ( 
-                   <View key={i.id}>
-                        <QuadroNota nota={i}   />
-                   </View>
-                    ) 
-                })*/
-            }
+            } } />            
             <BotaoCirculo click={adicionarNota} />
+            {
+              processando === true && 
+              <ModalAlerta style={stylesHome.alturaModal} visible={processando} comBotao={false}>
+                  <Loading texto="Processando..." />
+              </ModalAlerta>
+            }
         </View>
     );
 }
@@ -72,5 +93,8 @@ const stylesHome = StyleSheet.create({
     fontSize: 20,
   }, textoQuadro: {
     fontSize: 15,
-  }
+  },
+  alturaModal: {
+    height: 100
+  },
 });

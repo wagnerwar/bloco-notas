@@ -5,7 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useForm, SubmitHandler, Controller, FormState } from "react-hook-form"
 import { Loading } from '../components/Loading';
 import { ModalAlerta } from '../components/ModalAlerta';
-import ModalExemplo from '../components/ModalExemplo';
+import { DadosService } from '../services/DadosService';
 
 export function Cadastrocreen() {
     const navigation = useNavigation();
@@ -23,17 +23,21 @@ export function Cadastrocreen() {
         },
       })
 
-    const onSubmit = (data) => {
+    const onSubmit = async (data) => {
         console.log(data)
         setProcessando(true)
         try {
-            setTimeout(() => {
-                
+            setTimeout(async () => {
+                let dados:Nota = {};
+                dados.titulo = data.titulo;
+                dados.conteudo = data.conteudo;
+                await DadosService.Incluir(dados);
                 setProcessando(false);
                 exibirMensagem("Cadastro realizado com sucesso");
             }, (3000));
         } catch (error) {
             console.error(error);
+            setProcessando(false);
             exibirMensagem("Erro ao executar operação");
         }
     }
