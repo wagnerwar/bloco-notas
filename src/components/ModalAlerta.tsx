@@ -41,7 +41,9 @@ export function ModalAlerta(props) {
                         comBotao == true && <Pressable
                         style={[stylesModalAlerta.botao]}
                         onPress={async () => await handleClick() }>
-                        <Text style={stylesModalAlerta.texto}>OK</Text>
+                        <Text style={stylesModalAlerta.texto}>
+                            {props.textoBotao ? props.textoBotao : 'OK'}
+                        </Text>
                       </Pressable>
                     }
                 </View>

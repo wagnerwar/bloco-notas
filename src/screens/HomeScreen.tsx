@@ -15,6 +15,7 @@ export function Homecreen() {
     const [processando, setProcessando] = useState<boolean>(false);
     const [msg, setMsg] = useState<string>("");
     const [exibirMsg, setExibirMsg] = useState<boolean>(false);
+    const [exibirConfirmacaoExclusao, setExibirConfirmacaoExclusao] = useState<boolean>(false);
 
     useFocusEffect(
       useCallback(() => {
@@ -44,6 +45,20 @@ export function Homecreen() {
       navigation.navigate("Cadastro");
     };
 
+    const editarNota = async(id:number) => {
+      console.log("Editar");
+    };
+
+    const excluirNota = async(id:number) => {
+      console.log("Excluir de vez");
+    };
+
+    const confirmaExcluirNota = async(id:number) => {
+      console.log("Confirmar Excluir");
+      setExibirConfirmacaoExclusao(true);
+    };
+
+
     const exibirMensagem = (m:string) => {
       setExibirMsg(true);
       setMsg(m);
@@ -62,7 +77,12 @@ export function Homecreen() {
             keyExtractor={(item, index) => item.id.toString()}
             renderItem={(item) => {
               return <View key={item.item.id}>
-                <QuadroNota nota={item.item}   />
+                <QuadroNota 
+                nota={item.item} 
+                editar={editarNota} 
+                excluir={confirmaExcluirNota} 
+                setProcessando={setProcessando} 
+                carregarNotas={carregarNotas}   />
               </View>
             } } />            
             <BotaoCirculo click={adicionarNota} />
@@ -70,6 +90,20 @@ export function Homecreen() {
               processando === true && 
               <ModalAlerta style={stylesHome.alturaModal} visible={processando} comBotao={false}>
                   <Loading texto="Processando..." />
+              </ModalAlerta>
+            }
+            {
+              exibirConfirmacaoExclusao === true && 
+              <ModalAlerta 
+              style={stylesHome.alturaModal} 
+              visible={exibirConfirmacaoExclusao} 
+              comBotao={true} 
+              click={excluirNota}>
+                <View>
+                  <Text style={stylesHome.titulo}>
+                    Deseja excluir mesmo a nota?
+                  </Text>
+                </View> 
               </ModalAlerta>
             }
         </View>
