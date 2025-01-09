@@ -6,9 +6,9 @@ export function ModalAlerta(props) {
     const [modalVisible, setModalVisible] = useState(false);
     const comBotao:boolean = props.comBotao;
     const exibir:boolean = props.visible || false;
+    const confirmacao:boolean = props.confirmacao || false;
     
     useEffect(function(){
-        console.log("Exibir modal");
         console.log(exibir);
         if(exibir == true){
             setModalVisible(true);
@@ -19,7 +19,13 @@ export function ModalAlerta(props) {
         if(props.click){
             props.click();
         }
-        console.log("Clique")
+        setModalVisible(!modalVisible);
+    }
+
+    const handleFecharClick = async() => {
+        if(props.fechar){
+            props.fechar();
+        }
         setModalVisible(!modalVisible);
     }
 
@@ -37,15 +43,27 @@ export function ModalAlerta(props) {
                     {
                         props.children
                     }
-                    {
-                        comBotao == true && <Pressable
-                        style={[stylesModalAlerta.botao]}
-                        onPress={async () => await handleClick() }>
-                        <Text style={stylesModalAlerta.texto}>
-                            {props.textoBotao ? props.textoBotao : 'OK'}
-                        </Text>
-                      </Pressable>
-                    }
+                    <View style={stylesModalAlerta.botoes}>
+                        {
+                            comBotao == true && <Pressable
+                            style={[stylesModalAlerta.botao]}
+                            onPress={async () => await handleClick() }>
+                            <Text style={stylesModalAlerta.texto}>
+                                {props.textoBotao ? props.textoBotao : 'OK'}
+                            </Text>
+                        </Pressable>
+                        }
+                        {
+                            confirmacao == true && <Pressable
+                            style={[stylesModalAlerta.botao]}
+                            onPress={async () => await handleFecharClick() }>
+                            <Text style={stylesModalAlerta.texto}>
+                                Fechar
+                            </Text>
+                        </Pressable>
+                        }
+                    </View>
+                    
                 </View>
             </Modal>
         </View>
@@ -85,6 +103,10 @@ const stylesModalAlerta = StyleSheet.create({
         width: '25%', 
         alignSelf: 'center', 
         alignItems: 'center', 
-        justifyContent: 'center'
+        justifyContent: 'center', 
+        margin: 10,
+    }, botoes: {
+        flexDirection: 'row', 
+        alignItems: 'center',
     }
 });

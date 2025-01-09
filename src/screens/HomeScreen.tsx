@@ -16,6 +16,8 @@ export function Homecreen() {
     const [msg, setMsg] = useState<string>("");
     const [exibirMsg, setExibirMsg] = useState<boolean>(false);
     const [exibirConfirmacaoExclusao, setExibirConfirmacaoExclusao] = useState<boolean>(false);
+    const [atualizaTela, setAtualizaTela] = useState<boolean>(false);
+    const [notaSelecionada, setNotaSelecionada] = useState<number>(false);
 
     useFocusEffect(
       useCallback(() => {
@@ -25,6 +27,7 @@ export function Homecreen() {
 
     const carregarNotas = async () => {
       let lista:Nota[] = [];
+      setNotas([]);
       try {
         setProcessando(true);
         setTimeout(async () => {
@@ -49,13 +52,28 @@ export function Homecreen() {
       console.log("Editar");
     };
 
-    const excluirNota = async(id:number) => {
-      console.log("Excluir de vez");
+    const excluirNota = async() => {
+      try {
+
+        setExibirConfirmacaoExclusao(false);
+        setProcessando(true);
+        setTimeout(async () => {
+          await DadosService.Excluir(notaSelecionada);
+          await carregarNotas();
+          setProcessando(false);
+        }, (2000));      
+      } catch (error) {
+        console.error(error);
+        setProcessando(false);
+        exibirMensagem("Erro");
+      } 
     };
 
     const confirmaExcluirNota = async(id:number) => {
       console.log("Confirmar Excluir");
       setExibirConfirmacaoExclusao(true);
+      setNotaSelecionada(id);
+      atualizarTela();
     };
 
 
@@ -69,6 +87,10 @@ export function Homecreen() {
       setMsg("");
     }
 
+    const atualizarTela = () => {
+      setAtualizaTela(!atualizaTela);
+    }
+
     return  (
         <View style={stylesHome.tela}>
             <Text style={stylesHome.titulo}>Listagem de notas</Text>
@@ -79,10 +101,8 @@ export function Homecreen() {
               return <View key={item.item.id}>
                 <QuadroNota 
                 nota={item.item} 
-                editar={editarNota} 
-                excluir={confirmaExcluirNota} 
-                setProcessando={setProcessando} 
-                carregarNotas={carregarNotas}   />
+                editar={() => editarNota(item.item.id)} 
+                excluir={() => confirmaExcluirNota(item.item.id)}   />
               </View>
             } } />            
             <BotaoCirculo click={adicionarNota} />
@@ -93,12 +113,14 @@ export function Homecreen() {
               </ModalAlerta>
             }
             {
-              exibirConfirmacaoExclusao === true && 
+              exibirConfirmacaoExclusao === true &&
               <ModalAlerta 
               style={stylesHome.alturaModal} 
               visible={exibirConfirmacaoExclusao} 
               comBotao={true} 
-              click={excluirNota}>
+              click={() => excluirNota()} 
+              confirmacao={true} 
+              fechar={() => setExibirConfirmacaoExclusao(false)}>
                 <View>
                   <Text style={stylesHome.titulo}>
                     Deseja excluir mesmo a nota?
@@ -106,6 +128,7 @@ export function Homecreen() {
                 </View> 
               </ModalAlerta>
             }
+            <View style={stylesHome.oculto}>{atualizaTela}</View>
         </View>
     );
 }
@@ -129,6 +152,9 @@ const stylesHome = StyleSheet.create({
     fontSize: 15,
   },
   alturaModal: {
-    height: 100
+    height: 150
   },
+  oculto: {
+    display: 'none'
+  }
 });
