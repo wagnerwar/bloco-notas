@@ -32,6 +32,14 @@ const excluirItem = async (db: SQLiteDatabase, id: number) => {
     return db.executeSql(deleteQuery);
 };
 
+const atualizarItem = async (db: SQLiteDatabase, nota: Nota) => {
+    const updateQuery =
+        'UPDATE nota set conteudo = ' 
+        + `'${nota.conteudo}'` 
+        + ', titulo = ' + `'${nota.titulo}'` + ' where id = ' + `'${nota.id}'`;
+    return db.executeSql(updateQuery);
+};
+
 const Incluir = async(nota:Nota):Promise<boolean> => {
     try{
         const conn = await getDBConnection();
@@ -77,8 +85,47 @@ const GetNotas = async (): Promise<Nota[]> => {
     }
 };
 
+const GetNota = async (id: number): Promise<Nota | null> => {
+    try {
+        const db = await getDBConnection();
+        await createTable(db);
+        const todoItems: Nota[] = [];
+        const results = await db.executeSql(`SELECT id, titulo, conteudo FROM nota where id = ${id}`);
+        console.log(results);
+        if(results !== undefined){
+            results.forEach(result => {
+                for (let index = 0; index < result.rows.length; index++) {
+                    todoItems.push(result.rows.item(index))
+                }
+            });
+        }        
+        if(todoItems.length > 0){
+            return todoItems[0];
+        }else{
+            return null;
+        }        
+    } catch (error) {
+        console.error(error);
+        throw Error('Failed to get notas !!!');
+    }
+};
+
+const Atualizar = async(nota:Nota):Promise<boolean> => {
+    try{
+        const conn = await getDBConnection();
+        await createTable(conn);
+        await atualizarItem(conn, nota);
+        return true;
+    }catch(ex){
+        console.log(ex);
+        throw ex;
+    }
+}
+
 export const DadosService = {
     Incluir,
     GetNotas,
-    Excluir,
+    Excluir, 
+    GetNota, 
+    Atualizar
 };

@@ -7,7 +7,7 @@ import { Loading } from '../components/Loading';
 import { ModalAlerta } from '../components/ModalAlerta';
 import { DadosService } from '../services/DadosService';
 
-export function Cadastrocreen() {
+export function Cadastrocreen({ route }) {
     const navigation = useNavigation();
     const [processando, setProcessando] = useState<boolean>(false);
     const [msg, setMsg] = useState<string>("");
@@ -16,24 +16,56 @@ export function Cadastrocreen() {
         control,
         handleSubmit,
         formState, 
+        setValue
       } = useForm({
         defaultValues: {
-          titulo: "",
-          conteudo: "",
+            id: 0,
+            titulo: "",
+            conteudo: "",
         },
       })
 
+      useEffect(function(){
+        const { id }  = route.params;
+        console.log(id);
+        if(id != null && id != undefined){
+            recuperarDados(id);
+        }
+      }, []);
+
+      const recuperarDados = async(id:number) => {
+        console.log(id);
+        if(id){
+            setValue('id', id);
+            const dados = await DadosService.GetNota(id);
+            console.log(dados);
+            if(dados != null){
+                setValue('conteudo', dados.conteudo);
+                setValue('titulo', dados.titulo);
+            } 
+        }
+      }
     const onSubmit = async (data) => {
         console.log(data)
         setProcessando(true)
         try {
             setTimeout(async () => {
-                let dados:Nota = {};
-                dados.titulo = data.titulo;
-                dados.conteudo = data.conteudo;
-                await DadosService.Incluir(dados);
-                setProcessando(false);
-                exibirMensagem("Cadastro realizado com sucesso");
+                if(data.id == 0){
+                    let dados:Nota = {};
+                    dados.titulo = data.titulo;
+                    dados.conteudo = data.conteudo;
+                    await DadosService.Incluir(dados);
+                    setProcessando(false);
+                    exibirMensagem("Cadastro realizado com sucesso");
+                }else{
+                    let dados:Nota = {};
+                    dados.id = data.id;
+                    dados.titulo = data.titulo;
+                    dados.conteudo = data.conteudo;
+                    await DadosService.Atualizar(dados);
+                    setProcessando(false);
+                    exibirMensagem("Alteração realizada com sucesso");
+                }
             }, (3000));
         } catch (error) {
             console.error(error);

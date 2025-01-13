@@ -45,11 +45,12 @@ export function Homecreen() {
     };
 
     const adicionarNota = async() => {
-      navigation.navigate("Cadastro");
+      navigation.navigate("Cadastro", {});
     };
 
     const editarNota = async(id:number) => {
       console.log("Editar");
+      navigation.navigate("Cadastro", { id: id });
     };
 
     const excluirNota = async() => {
