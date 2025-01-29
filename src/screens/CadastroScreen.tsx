@@ -17,13 +17,13 @@ export function Cadastrocreen({ route }) {
         handleSubmit,
         formState, 
         setValue
-      } = useForm({
-        defaultValues: {
-            id: 0,
-            titulo: "",
-            conteudo: "",
-        },
-      })
+    } = useForm({
+    defaultValues: {
+        id: 0,
+        titulo: "",
+        conteudo: "",
+    },
+    })
 
       useEffect(function(){
         const { id }  = route.params;

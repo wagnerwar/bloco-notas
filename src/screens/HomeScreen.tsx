@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect, Component, useMemo, useCallback } from 'react';
-import { Switch, Text, View, TextInput, Pressable, Alert, ScrollView, StyleSheet } from 'react-native';
+import { Switch, Text, View, TextInput, Pressable, Alert, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import { Nota, Tema } from '../domain/enums';
 import { QuadroNota } from '../components/QuadroNota';
 import { BotaoCirculo } from '../components/BotaoCirculo';
@@ -9,6 +9,9 @@ import { DadosService } from '../services/DadosService';
 import { useFocusEffect } from '@react-navigation/native';
 import { ModalAlerta } from '../components/ModalAlerta';
 import { Loading } from '../components/Loading';
+import IconeSearch from '../assets/search.svg';
+import { CampoPesquisa } from '../components/CampoPesquisa';
+
 export function Homecreen() {
     const [notas, setNotas] = useState<Nota[] | null>([])
     const navigation = useNavigation();
@@ -95,6 +98,9 @@ export function Homecreen() {
     return  (
         <View style={stylesHome.tela}>
             <Text style={stylesHome.titulo}>Listagem de notas</Text>
+            <CampoPesquisa 
+              setProcessando={setProcessando} 
+              carregarNotas={carregarNotas}></CampoPesquisa>
             <FlatList 
             data={notas} 
             keyExtractor={(item, index) => item.id.toString()}
@@ -157,5 +163,28 @@ const stylesHome = StyleSheet.create({
   },
   oculto: {
     display: 'none'
+  },
+  inputPesquisa: {
+    alignSelf: 'flex-start',
+    fontSize: 20, 
+    height: 50,
+  },
+  pesquisa: {
+    backgroundColor: '#FFF',
+    borderColor: '#000',
+    borderRadius: 10, 
+    borderWidth: 1,
+    width: '90%', 
+    justifyContent: 'space-between',
+    flexDirection: 'row',
+    margin: 10,
+  },
+  botaoPesquisa: {
+    alignSelf: 'flex-end',
+    backgroundColor: '#FFF',
+    padding: 10,
+    borderRadius: '50%', 
+    width: 55, 
+    height: 55,
   }
 });
