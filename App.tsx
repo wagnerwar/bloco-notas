@@ -9,12 +9,12 @@ import {
   useColorScheme,
   View,
 } from 'react-native';
-import { Router } from './src/main/routes';
+import { Router, RouterDraw } from './src/main/routes';
 function App(): React.JSX.Element {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Router />          
+      <RouterDraw />
     </SafeAreaView>
   );
 }

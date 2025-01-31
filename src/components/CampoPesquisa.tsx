@@ -20,13 +20,10 @@ export function CampoPesquisa(props:any) {
         props.setProcessando(true);
       }
       setTimeout(async () => {
-        if(textoPesquisa != ""){
-          console.log("Pesquisar");
-        }
-        setTextoPesquisa("");        
-        if(props.setProcessando){
-          props.setProcessando(false);
-        }
+        if(props.FiltrarNotas){
+          await props.FiltrarNotas(textoPesquisa);
+        }        
+        setTextoPesquisa("");
       }, (2000));
     } catch (error) {
       console.error(error);

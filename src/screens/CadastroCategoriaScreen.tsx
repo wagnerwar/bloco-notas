@@ -6,8 +6,8 @@ import { useForm, SubmitHandler, Controller, FormState } from "react-hook-form"
 import { Loading } from '../components/Loading';
 import { ModalAlerta } from '../components/ModalAlerta';
 import { DadosService } from '../services/DadosService';
-
-export function Cadastrocreen({ route }) {
+import CheckBox from '@react-native-community/checkbox';
+export function CadastroCategoriaScreen({ route }) {
     const navigation = useNavigation();
     const [processando, setProcessando] = useState<boolean>(false);
     const [msg, setMsg] = useState<string>("");
@@ -20,49 +20,43 @@ export function Cadastrocreen({ route }) {
     } = useForm({
     defaultValues: {
         id: 0,
-        titulo: "",
+        nome: "",
         conteudo: "",
+        ativo: 0
     },
     })
 
     useEffect(function(){
-    const { id }  = route.params;
-    console.log(id);
-    if(id != null && id != undefined){
-        recuperarDados(id);
-    }
+        const { id }  = route.params;
+        console.log(id);
+        if(id != null && id != undefined){
+            recuperarDados(id);
+        }
     }, []);
-
+    
     const recuperarDados = async(id:number) => {
-    console.log(id);
-    if(id){
-        setValue('id', id);
-        const dados = await DadosService.GetNota(id);
-        console.log(dados);
-        if(dados != null){
-            setValue('conteudo', dados.conteudo);
-            setValue('titulo', dados.titulo);
-        } 
+        console.log(id);
+        if(id){
+            setValue('id', id);
+            const dados = await DadosService.GetCategoria(id);
+            console.log(dados);
+            if(dados != null){
+                setValue('conteudo', dados.conteudo);
+                setValue('nome', dados.nome);
+                setValue('id', dados.id);
+            } 
+        }
     }
-    }
+
     const onSubmit = async (data) => {
         console.log(data)
         setProcessando(true)
         try {
             setTimeout(async () => {
                 if(data.id == 0){
-                    let dados:Nota = {};
-                    dados.titulo = data.titulo;
-                    dados.conteudo = data.conteudo;
-                    await DadosService.Incluir(dados);
-                    setProcessando(false);
+                    setProcessando(false)
                     exibirMensagem("Cadastro realizado com sucesso");
                 }else{
-                    let dados:Nota = {};
-                    dados.id = data.id;
-                    dados.titulo = data.titulo;
-                    dados.conteudo = data.conteudo;
-                    await DadosService.Atualizar(dados);
                     setProcessando(false);
                     exibirMensagem("Alteração realizada com sucesso");
                 }
@@ -89,12 +83,12 @@ export function Cadastrocreen({ route }) {
         setMsg("");
     }
 
-    return (
-        <View style={stylesCadastro.container}>           
-            <Text style={stylesCadastro.titulo}>Cadastro de nota</Text>
+    return  (
+        <View style={stylesCadastroCategoria.container}>
+            <Text>Cadastro de Categorias</Text>
             <ScrollView>
-                <View style={stylesCadastro.linhaFormulario}>
-                    <Text style={stylesCadastro.texto}>
+                <View style={stylesCadastroCategoria.linhaFormulario}>
+                    <Text style={stylesCadastroCategoria.texto}>
                         Título
                     </Text>
                     <Controller
@@ -104,18 +98,18 @@ export function Cadastrocreen({ route }) {
                     }}
                     render={({ field: { onChange, onBlur, value } }) => (
                         <TextInput
-                            style={stylesCadastro.input}
+                            style={stylesCadastroCategoria.input}
                             onBlur={onBlur}
                             onChangeText={onChange}
                             value={value}
                         />
                     )}
-                    name="titulo"
+                    name="nome"
                     />
-                    {formState.errors.titulo && <Text style={stylesCadastro.error}>Título é obrigatório.</Text>}
+                    {formState.errors.nome && <Text style={stylesCadastroCategoria.error}>Nome é obrigatório.</Text>}
                 </View>
-                <View style={stylesCadastro.linhaFormulario}>
-                    <Text style={stylesCadastro.texto}>
+                <View style={stylesCadastroCategoria.linhaFormulario}>
+                    <Text style={stylesCadastroCategoria.texto}>
                         Conteudo
                     </Text>
                     <Controller
@@ -125,7 +119,7 @@ export function Cadastrocreen({ route }) {
                     }}
                     render={({ field: { onChange, onBlur, value } }) => (
                         <TextInput
-                            style={stylesCadastro.input}
+                            style={stylesCadastroCategoria.input}
                             onBlur={onBlur}
                             onChangeText={onChange}
                             value={value}
@@ -133,20 +127,40 @@ export function Cadastrocreen({ route }) {
                     )}
                     name="conteudo"
                     />
-                    {formState.errors.conteudo && <Text style={stylesCadastro.error}>Conteudo é obrigatório.</Text>}
+                    {formState.errors.conteudo && <Text style={stylesCadastroCategoria.error}>Conteudo é obrigatório.</Text>}
                 </View>
-                <View style={stylesCadastro.linhaFormulario}>
+                <View style={stylesCadastroCategoria.linhaFormulario}>
+                    <Text style={stylesCadastroCategoria.texto}>
+                        Ativo
+                    </Text>
+                    <Controller
+                    control={control}
+                    rules={{
+                    required: true,
+                    }}
+                    render={({ field: { onChange, onBlur, value } }) => (
+                        <CheckBox
+                            value={true}
+                            onValueChange={onChange}
+                            style={stylesCadastroCategoria.checkbox}
+                        />
+                    )}
+                    name="ativo"
+                    />
+                    {formState.errors.ativo && <Text style={stylesCadastroCategoria.error}>Ativo deve ser preenchido.</Text>}
+                </View>
+                <View style={stylesCadastroCategoria.linhaFormulario}>
                     <TouchableHighlight 
                     disabled={processando === true}
-                    style={stylesCadastro.botaoFormulario} 
+                    style={stylesCadastroCategoria.botaoFormulario} 
                     onPress={handleSubmit(onSubmit)}>
-                        <Text style={[stylesCadastro.texto, stylesCadastro.centralizado]}>Salvar</Text>
+                        <Text style={[stylesCadastroCategoria.texto, stylesCadastroCategoria.centralizado]}>Salvar</Text>
                     </TouchableHighlight>
                 </View>
-                <View style={stylesCadastro.linhaFormulario}>
+                <View style={stylesCadastroCategoria.linhaFormulario}>
                     {
                         processando === true && 
-                        <ModalAlerta style={stylesCadastro.alturaModal} visible={processando} comBotao={false}>
+                        <ModalAlerta style={stylesCadastroCategoria.alturaModal} visible={processando} comBotao={false}>
                             <Loading texto="Processando..." />
                         </ModalAlerta>
                     }
@@ -154,7 +168,7 @@ export function Cadastrocreen({ route }) {
                     {
                         exibirMsg === true && 
                         <ModalAlerta 
-                        style={stylesCadastro.alturaModal} 
+                        style={stylesCadastroCategoria.alturaModal} 
                         click={redirecionarTelaInicial} 
                         visible={exibirMsg} 
                         comBotao={true}>
@@ -166,7 +180,7 @@ export function Cadastrocreen({ route }) {
         </View>
     );
 }
-const stylesCadastro = StyleSheet.create({
+const stylesCadastroCategoria = StyleSheet.create({
     container: {
         flex: 1,
     },
@@ -201,5 +215,8 @@ const stylesCadastro = StyleSheet.create({
         fontSize: 25,
     }, alturaModal: {
         height: 100
-    }
-  });
+    },
+    checkbox: {
+        alignSelf: 'center',
+    },
+});

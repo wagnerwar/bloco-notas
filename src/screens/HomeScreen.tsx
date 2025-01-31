@@ -95,12 +95,29 @@ export function Homecreen() {
       setAtualizaTela(!atualizaTela);
     }
 
+    const FiltrarNotas = async (termo: string) => {
+      let lista:Nota[] = [];
+      setNotas([]);
+      try {
+        setProcessando(true);
+        setTimeout(async () => {
+          lista = await DadosService.FiltrarNotas(termo);
+          setNotas(lista);
+          setProcessando(false);
+        }, (1000));      
+      } catch (error) {
+        console.error(error);
+        setProcessando(false);
+        exibirMensagem("Erro");
+      }
+    };
+
     return  (
         <View style={stylesHome.tela}>
             <Text style={stylesHome.titulo}>Listagem de notas</Text>
             <CampoPesquisa 
               setProcessando={setProcessando} 
-              carregarNotas={carregarNotas}></CampoPesquisa>
+              FiltrarNotas={FiltrarNotas}></CampoPesquisa>
             <FlatList 
             data={notas} 
             keyExtractor={(item, index) => item.id.toString()}

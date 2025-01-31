@@ -1,4 +1,4 @@
-import { Nota } from "../domain/enums"
+import { Categoria, Nota } from "../domain/enums"
 import {openDatabase, SQLiteDatabase, enablePromise} from 'react-native-sqlite-storage';
 
 enablePromise(true);
@@ -15,6 +15,14 @@ const createTable = async (db: SQLiteDatabase) => {
           titulo text not null
       );`;  
     await db.executeSql(query);
+
+    const qrCategoria = `CREATE TABLE IF NOT EXISTS categoria(
+        id integer primary key AUTOINCREMENT,
+        nome TEXT NOT NULL,
+        conteudo TEXT NOT NULL,
+        ativo INTEGER NOT NULL
+    );`;  
+    await db.executeSql(qrCategoria);
   };
 
 const incluirItem = async (db: SQLiteDatabase, nota: Nota) => {
@@ -122,10 +130,124 @@ const Atualizar = async(nota:Nota):Promise<boolean> => {
     }
 }
 
+const FiltrarNotas = async (termo:string): Promise<Nota[]> => {
+    try {
+        const db = await getDBConnection();
+        await createTable(db);
+        const todoItems: Nota[] = [];
+        const results = await db.executeSql(`SELECT id, titulo, conteudo FROM nota where titulo like '%${termo}%'`);
+        console.log(results);
+        if(results !== undefined){
+            results.forEach(result => {
+                for (let index = 0; index < result.rows.length; index++) {
+                    todoItems.push(result.rows.item(index))
+                }
+            });
+        }        
+        return todoItems;
+    } catch (error) {
+        console.error(error);
+        throw Error('Failed to get notas !!!');
+    }
+};
+
+const GetCategorias = async (): Promise<Categoria[]> => {
+    try {
+        const db = await getDBConnection();
+        await createTable(db);
+        const todoItems: Categoria[] = [];
+        const results = await db.executeSql(`SELECT id, nome, conteudo, ativo FROM categoria`);
+        console.log(results);
+        if(results !== undefined){
+            results.forEach(result => {
+                for (let index = 0; index < result.rows.length; index++) {
+                    todoItems.push(result.rows.item(index))
+                }
+            });
+        }        
+        return todoItems;
+    } catch (error) {
+        console.error(error);
+        throw Error('Failed to get notas !!!');
+    }
+};
+
+const GetCategoria = async (id: number): Promise<Categoria | null> => {
+    try {
+        const db = await getDBConnection();
+        await createTable(db);
+        const todoItems: Categoria[] = [];
+        const results = await db.executeSql(`SELECT id, nome, conteudo, ativo FROM categoria where id = ${id}`);
+        console.log(results);
+        if(results !== undefined){
+            results.forEach(result => {
+                for (let index = 0; index < result.rows.length; index++) {
+                    todoItems.push(result.rows.item(index))
+                }
+            });
+        }        
+        if(todoItems.length > 0){
+            return todoItems[0];
+        }else{
+            return null;
+        }        
+    } catch (error) {
+        console.error(error);
+        throw Error('Failed to get notas !!!');
+    }
+};
+
+const incluirItemCategoria = async (db: SQLiteDatabase, categoria: Categoria) => {
+    console.log(nota);
+    const insertQuery =
+        'INSERT INTO categoria(nome, conteudo, ativo) values' +
+        `('${categoria.nome}', '${categoria.conteudo}', '${categoria.ativo}')`;
+    return db.executeSql(insertQuery);
+};
+
+const IncluirCategoria = async(categoria:Categoria):Promise<boolean> => {
+    try{
+        const conn = await getDBConnection();
+        await createTable(conn);
+        await incluirItemCategoria(conn, categoria);
+        return true;
+    }catch(ex){
+        console.log(ex);
+        throw ex;
+    }
+}
+
+const atualizarItemCategoria = async (db: SQLiteDatabase, categoria: Categoria) => {
+    const updateQuery =
+        'UPDATE categoria set conteudo = ' 
+        + `'${categoria.conteudo}'` 
+        + ', nome = ' + `'${categoria.nome}'`
+        + ', ativo = ' + `'${categoria.ativo}'`
+        + ' where id = ' + `'${categoria.id}'`;
+    return db.executeSql(updateQuery);
+};
+
+const AtualizarCategoria = async(categoria:Categoria):Promise<boolean> => {
+    try{
+        const conn = await getDBConnection();
+        await createTable(conn);
+        await atualizarItemCategoria(conn, categoria);
+        return true;
+    }catch(ex){
+        console.log(ex);
+        throw ex;
+    }
+}
+
 export const DadosService = {
     Incluir,
     GetNotas,
     Excluir, 
     GetNota, 
-    Atualizar
+    Atualizar, 
+    FiltrarNotas, 
+    GetCategorias,
+    GetCategoria, 
+    IncluirCategoria, 
+    AtualizarCategoria
 };
