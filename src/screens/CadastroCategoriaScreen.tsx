@@ -1,17 +1,19 @@
 import React, { useContext, useState, useEffect, Component, useMemo } from 'react';
 import { Switch, Text, View, TextInput, Pressable, Alert, ScrollView, StyleSheet, TouchableHighlight } from 'react-native';
-import { Nota, Tema } from '../domain/enums';
+import { Categoria, Nota, Tema } from '../domain/enums';
 import { useNavigation } from '@react-navigation/native';
 import { useForm, SubmitHandler, Controller, FormState } from "react-hook-form"
 import { Loading } from '../components/Loading';
 import { ModalAlerta } from '../components/ModalAlerta';
 import { DadosService } from '../services/DadosService';
 import CheckBox from '@react-native-community/checkbox';
+import BouncyCheckbox from "react-native-bouncy-checkbox";
 export function CadastroCategoriaScreen({ route }) {
     const navigation = useNavigation();
     const [processando, setProcessando] = useState<boolean>(false);
     const [msg, setMsg] = useState<string>("");
     const [exibirMsg, setExibirMsg] = useState<boolean>(false);
+    const [ativo, setAtivo] = useState<boolean>(false);
     const {
         control,
         handleSubmit,
@@ -22,7 +24,7 @@ export function CadastroCategoriaScreen({ route }) {
         id: 0,
         nome: "",
         conteudo: "",
-        ativo: 0
+        ativo: false
     },
     })
 
@@ -31,6 +33,8 @@ export function CadastroCategoriaScreen({ route }) {
         console.log(id);
         if(id != null && id != undefined){
             recuperarDados(id);
+        }else{
+            setValue('ativo', true);
         }
     }, []);
     
@@ -54,9 +58,28 @@ export function CadastroCategoriaScreen({ route }) {
         try {
             setTimeout(async () => {
                 if(data.id == 0){
+                    let dadosCategoria: Categoria = {};
+                    dadosCategoria.conteudo = data.conteudo;
+                    dadosCategoria.nome = data.nome;
+                    if(data.ativo == true){
+                        dadosCategoria.ativo = 1;
+                    }else{
+                        dadosCategoria.ativo = 0;
+                    }
+                    await DadosService.IncluirCategoria(dadosCategoria);
                     setProcessando(false)
                     exibirMensagem("Cadastro realizado com sucesso");
                 }else{
+                    let dadosCategoria: Categoria = {};
+                    dadosCategoria.id = data.id;
+                    dadosCategoria.conteudo = data.conteudo;
+                    dadosCategoria.nome = data.nome;
+                    if(data.ativo == true){
+                        dadosCategoria.ativo = 1;
+                    }else{
+                        dadosCategoria.ativo = 0;
+                    }
+                    await DadosService.AtualizarCategoria(dadosCategoria);
                     setProcessando(false);
                     exibirMensagem("Alteração realizada com sucesso");
                 }
@@ -134,20 +157,20 @@ export function CadastroCategoriaScreen({ route }) {
                         Ativo
                     </Text>
                     <Controller
-                    control={control}
-                    rules={{
-                    required: true,
-                    }}
-                    render={({ field: { onChange, onBlur, value } }) => (
-                        <CheckBox
-                            value={true}
-                            onValueChange={onChange}
-                            style={stylesCadastroCategoria.checkbox}
-                        />
-                    )}
+                        control={control}
+                        rules={{
+                        required: true,
+                        }}
+                        render={({ field: { onChange, onBlur, value } }) => (
+                            <BouncyCheckbox innerIconStyle={stylesCadastroCategoria.estiloIconeCheckBox}
+                            fillColor={Tema.corSecundaria} 
+                            size={30}
+                            isChecked={value} 
+                            onPress={(isChecked: boolean) => {onChange(isChecked)}} />
+                        )}
                     name="ativo"
                     />
-                    {formState.errors.ativo && <Text style={stylesCadastroCategoria.error}>Ativo deve ser preenchido.</Text>}
+                    {formState.errors.ativo && <Text style={stylesCadastroCategoria.error}>Status é obrigatório.</Text>}
                 </View>
                 <View style={stylesCadastroCategoria.linhaFormulario}>
                     <TouchableHighlight 
@@ -188,7 +211,8 @@ const stylesCadastroCategoria = StyleSheet.create({
         fontSize: 20,
     }, linhaFormulario: {
         marginTop: 10,
-        width: '90%'
+        width: '90%',
+        marginLeft: 5,
     }, botaoFormulario: {
         backgroundColor: Tema.corSecundaria, 
         padding: 5, 
@@ -218,5 +242,8 @@ const stylesCadastroCategoria = StyleSheet.create({
     },
     checkbox: {
         alignSelf: 'center',
-    },
+    }, estiloIconeCheckBox: {
+        borderRadius: 0,
+        borderWidth: 5
+    }
 });

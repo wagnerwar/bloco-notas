@@ -59,8 +59,7 @@ export function CategoriaScreen() {
 
     
     const editarCategoria = async(id:number) => {
-        console.log("Editar");
-        navigation.navigate("Cadastro", { id: id });
+        navigation.navigate("CadastroCategoria", { id: id });
     };
     
     const excluirCategoria = async() => {
@@ -100,7 +99,7 @@ export function CategoriaScreen() {
             renderItem={(item) => {
                 return <View key={item.item.id}>
                 <QuadroCategoria 
-                nota={item.item} 
+                categoria={item.item} 
                 editar={() => editarCategoria(item.item.id)} 
                 excluir={() => confirmaExcluirCategoria(item.item.id)}   />
                 </View>

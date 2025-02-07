@@ -1,4 +1,4 @@
-import { Categoria, Nota } from "../domain/enums"
+import { Categoria, Constantes, Nota } from "../domain/enums"
 import {openDatabase, SQLiteDatabase, enablePromise} from 'react-native-sqlite-storage';
 
 enablePromise(true);
@@ -8,14 +8,6 @@ const getDBConnection = async () => {
 };
 
 const createTable = async (db: SQLiteDatabase) => {
-    // create table if not exists
-    const query = `CREATE TABLE IF NOT EXISTS nota(
-          id integer primary key AUTOINCREMENT,
-          conteudo TEXT NOT NULL,
-          titulo text not null
-      );`;  
-    await db.executeSql(query);
-
     const qrCategoria = `CREATE TABLE IF NOT EXISTS categoria(
         id integer primary key AUTOINCREMENT,
         nome TEXT NOT NULL,
@@ -23,13 +15,22 @@ const createTable = async (db: SQLiteDatabase) => {
         ativo INTEGER NOT NULL
     );`;  
     await db.executeSql(qrCategoria);
-  };
+
+    const query = `CREATE TABLE IF NOT EXISTS nota(
+        id integer primary key AUTOINCREMENT,
+        conteudo TEXT NOT NULL,
+        titulo text not null,
+        id_categoria INTEGER,
+        FOREIGN KEY(id_categoria) REFERENCES categoria(id)
+    );`;
+  await db.executeSql(query);
+};
 
 const incluirItem = async (db: SQLiteDatabase, nota: Nota) => {
 console.log(nota);
 const insertQuery =
-    'INSERT INTO nota(conteudo, titulo) values' +
-    `('${nota.conteudo}', '${nota.titulo}')`;
+    'INSERT INTO nota(conteudo, titulo, id_categoria) values' +
+    `('${nota.conteudo}', '${nota.titulo}', '${nota.id_categoria}')`;
 return db.executeSql(insertQuery);
 };
 
@@ -44,7 +45,9 @@ const atualizarItem = async (db: SQLiteDatabase, nota: Nota) => {
     const updateQuery =
         'UPDATE nota set conteudo = ' 
         + `'${nota.conteudo}'` 
-        + ', titulo = ' + `'${nota.titulo}'` + ' where id = ' + `'${nota.id}'`;
+        + ', titulo = ' + `'${nota.titulo}'` 
+        + ', id_categoria = ' + `'${nota.id_categoria}'` 
+        +  ' where id = ' + `'${nota.id}'`;
     return db.executeSql(updateQuery);
 };
 
@@ -77,8 +80,7 @@ const GetNotas = async (): Promise<Nota[]> => {
         const db = await getDBConnection();
         await createTable(db);
         const todoItems: Nota[] = [];
-        const results = await db.executeSql(`SELECT id, titulo, conteudo FROM nota`);
-        console.log(results);
+        const results = await db.executeSql(`SELECT id, titulo, conteudo, id_categoria FROM nota`);
         if(results !== undefined){
             results.forEach(result => {
                 for (let index = 0; index < result.rows.length; index++) {
@@ -98,15 +100,15 @@ const GetNota = async (id: number): Promise<Nota | null> => {
         const db = await getDBConnection();
         await createTable(db);
         const todoItems: Nota[] = [];
-        const results = await db.executeSql(`SELECT id, titulo, conteudo FROM nota where id = ${id}`);
-        console.log(results);
+        const results = await db.executeSql(`SELECT id, titulo, conteudo, id_categoria FROM nota where id = ${id}`);
         if(results !== undefined){
             results.forEach(result => {
                 for (let index = 0; index < result.rows.length; index++) {
                     todoItems.push(result.rows.item(index))
                 }
             });
-        }        
+        }
+        console.log(todoItems);        
         if(todoItems.length > 0){
             return todoItems[0];
         }else{
@@ -136,7 +138,6 @@ const FiltrarNotas = async (termo:string): Promise<Nota[]> => {
         await createTable(db);
         const todoItems: Nota[] = [];
         const results = await db.executeSql(`SELECT id, titulo, conteudo FROM nota where titulo like '%${termo}%'`);
-        console.log(results);
         if(results !== undefined){
             results.forEach(result => {
                 for (let index = 0; index < result.rows.length; index++) {
@@ -157,7 +158,6 @@ const GetCategorias = async (): Promise<Categoria[]> => {
         await createTable(db);
         const todoItems: Categoria[] = [];
         const results = await db.executeSql(`SELECT id, nome, conteudo, ativo FROM categoria`);
-        console.log(results);
         if(results !== undefined){
             results.forEach(result => {
                 for (let index = 0; index < result.rows.length; index++) {
@@ -178,7 +178,6 @@ const GetCategoria = async (id: number): Promise<Categoria | null> => {
         await createTable(db);
         const todoItems: Categoria[] = [];
         const results = await db.executeSql(`SELECT id, nome, conteudo, ativo FROM categoria where id = ${id}`);
-        console.log(results);
         if(results !== undefined){
             results.forEach(result => {
                 for (let index = 0; index < result.rows.length; index++) {
@@ -198,7 +197,6 @@ const GetCategoria = async (id: number): Promise<Categoria | null> => {
 };
 
 const incluirItemCategoria = async (db: SQLiteDatabase, categoria: Categoria) => {
-    console.log(nota);
     const insertQuery =
         'INSERT INTO categoria(nome, conteudo, ativo) values' +
         `('${categoria.nome}', '${categoria.conteudo}', '${categoria.ativo}')`;
@@ -239,6 +237,27 @@ const AtualizarCategoria = async(categoria:Categoria):Promise<boolean> => {
     }
 }
 
+const GetCategoriasAtivas = async (): Promise<Categoria[]> => {
+    try {
+        const db = await getDBConnection();
+        await createTable(db);
+        const todoItems: Categoria[] = [];
+        const results = await db.executeSql(`SELECT id, nome, conteudo, ativo FROM categoria where ativo = ${Constantes.ativo}`);
+        if(results !== undefined){
+            results.forEach(result => {
+                for (let index = 0; index < result.rows.length; index++) {
+                    todoItems.push(result.rows.item(index))
+                }
+            });
+        }
+        console.log(todoItems)
+        return todoItems;
+    } catch (error) {
+        console.error(error);
+        throw Error('Failed to get notas !!!');
+    }
+};
+
 export const DadosService = {
     Incluir,
     GetNotas,
@@ -249,5 +268,6 @@ export const DadosService = {
     GetCategorias,
     GetCategoria, 
     IncluirCategoria, 
-    AtualizarCategoria
+    AtualizarCategoria, 
+    GetCategoriasAtivas,
 };

@@ -21,14 +21,15 @@ export const Tema:TemaProps = {
 export interface Nota{
     id: number,
     titulo: string,
-    conteudo: string
+    conteudo: string,
+    id_categoria: number
 }
 
 export interface Categoria{
     id: number,
     nome: string,
     conteudo: string,
-    ativo: number
+    ativo: number,
 }
 
 export const Constantes:ConstantesProps = {

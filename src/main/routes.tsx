@@ -17,6 +17,7 @@ const MyDrawer = createDrawerNavigator({
     Home: {
       screen: RouterNota,
       options: {
+        headerShown: true,
         title: 'Notas',
       },
     },
@@ -24,6 +25,7 @@ const MyDrawer = createDrawerNavigator({
       screen: RouterCategoria,
       options: {
         title: 'Categorias',
+        headerShown: true,
       },
     }
   },
@@ -37,7 +39,7 @@ export function RouterNota() {
       <NavigationContainer>
         <Stack.Navigator>
             <Stack.Screen name="Home" component={Homecreen} options={{ headerShown: false }} />
-            <Stack.Screen name="Cadastro" component={Cadastrocreen} options={{ headerShown: false }} />
+            <Stack.Screen name="Cadastro" component={Cadastrocreen} options={{ headerShown: true }} />
         </Stack.Navigator>
       </NavigationContainer>
     </NavigationIndependentTree>
@@ -50,7 +52,7 @@ export function RouterCategoria() {
       <NavigationContainer>
         <Stack.Navigator>
             <Stack.Screen name="Categorias" component={CategoriaScreen} options={{ headerShown: false }} />
-            <Stack.Screen name="CadastroCategoria" component={CadastroCategoriaScreen} options={{ headerShown: false }} />
+            <Stack.Screen name="CadastroCategoria" component={CadastroCategoriaScreen} options={{ headerShown: true }} />
         </Stack.Navigator>
       </NavigationContainer>
     </NavigationIndependentTree>
