@@ -11,6 +11,7 @@ import { ModalAlerta } from '../components/ModalAlerta';
 import { Loading } from '../components/Loading';
 import IconeSearch from '../assets/search.svg';
 import { CampoPesquisa } from '../components/CampoPesquisa';
+import { HeaderCustomizado } from '../components/HeaderCustomizado';
 
 export function Homecreen() {
     const [notas, setNotas] = useState<Nota[] | null>([])
@@ -114,10 +115,12 @@ export function Homecreen() {
 
     return  (
         <View style={stylesHome.tela}>
-            <Text style={stylesHome.titulo}>Listagem de notas</Text>
+            <HeaderCustomizado 
+              titulo="Notas" 
+              navigation={navigation} />
             <CampoPesquisa 
               setProcessando={setProcessando} 
-              FiltrarNotas={FiltrarNotas}></CampoPesquisa>
+              FiltrarNotas={FiltrarNotas} />
             <FlatList 
             data={notas} 
             keyExtractor={(item, index) => item.id.toString()}

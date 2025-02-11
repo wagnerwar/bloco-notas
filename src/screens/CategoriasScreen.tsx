@@ -13,6 +13,8 @@ import IconeSearch from '../assets/search.svg';
 import { CampoPesquisa } from '../components/CampoPesquisa';
 import { Categoria } from '../domain/enums';
 import { QuadroCategoria } from '../components/QuadroCategoria';
+import { HeaderCustomizado } from '../components/HeaderCustomizado';
+
 export function CategoriaScreen() {
     const [categorias, setCategorias] = useState<Categoria[] | null>([])
     const navigation = useNavigation();
@@ -92,7 +94,9 @@ export function CategoriaScreen() {
 
     return  (
         <View style={stylesCategoria.tela}>
-            <Text>Categorias</Text>
+            <HeaderCustomizado 
+                titulo="Categorias" 
+                navigation={navigation} />
             <FlatList 
             data={categorias} 
             keyExtractor={(item, index) => item.id.toString()}

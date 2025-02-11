@@ -8,6 +8,8 @@ import { ModalAlerta } from '../components/ModalAlerta';
 import { DadosService } from '../services/DadosService';
 import CheckBox from '@react-native-community/checkbox';
 import BouncyCheckbox from "react-native-bouncy-checkbox";
+import { HeaderCustomizadoInterno } from '../components/HeaderCustomizadoInterno';
+
 export function CadastroCategoriaScreen({ route }) {
     const navigation = useNavigation();
     const [processando, setProcessando] = useState<boolean>(false);
@@ -108,7 +110,7 @@ export function CadastroCategoriaScreen({ route }) {
 
     return  (
         <View style={stylesCadastroCategoria.container}>
-            <Text>Cadastro de Categorias</Text>
+            <HeaderCustomizadoInterno titulo='Categorias' tela='Categoria' navigation={navigation} />
             <ScrollView>
                 <View style={stylesCadastroCategoria.linhaFormulario}>
                     <Text style={stylesCadastroCategoria.texto}>

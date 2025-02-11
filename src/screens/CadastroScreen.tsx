@@ -10,6 +10,7 @@ import { Dropdown } from 'react-native-element-dropdown';
 import { Categoria } from '../domain/enums';
 import Toast from 'react-native-toast-message';
 import { exibirAviso } from '../helpers';
+import { HeaderCustomizadoInterno } from '../components/HeaderCustomizadoInterno';
 
 export function Cadastrocreen({ route }) {
     const navigation = useNavigation();
@@ -62,11 +63,9 @@ export function Cadastrocreen({ route }) {
 
     const onSubmit = async (data) => {
         console.log(data)
-        exibirAviso("Erro ao executar operação");
-        //setProcessando(true)
+        setProcessando(true)
         try {
-            
-            /*setTimeout(async () => {
+            setTimeout(async () => {
                 if(data.id == 0){
                     let dados:Nota = {};
                     dados.titulo = data.titulo;
@@ -85,7 +84,7 @@ export function Cadastrocreen({ route }) {
                     setProcessando(false);
                     exibirMensagem("Alteração realizada com sucesso");
                 }
-            }, (3000));*/
+            }, (3000));
         } catch (error) {
             console.error(error);
             setProcessando(false);
@@ -117,7 +116,7 @@ export function Cadastrocreen({ route }) {
 
     return (
         <View style={stylesCadastro.container}>           
-            <Text style={stylesCadastro.titulo}>Cadastro de nota</Text>
+            <HeaderCustomizadoInterno titulo='Notas' tela='Home' navigation={navigation} />
             <ScrollView>
                 <View style={stylesCadastro.linhaFormulario}>
                     <Text style={stylesCadastro.texto}>
