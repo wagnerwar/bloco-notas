@@ -57,10 +57,10 @@ const stylesCampoPesquisa = StyleSheet.create({
         borderColor: '#000',
         borderRadius: 10, 
         borderWidth: 1,
-        width: '90%', 
+        width: '70%', 
         justifyContent: 'space-between',
         flexDirection: 'row',
-        margin: 10,
+        margin: 2,
       },
       botaoPesquisa: {
         alignSelf: 'flex-end',

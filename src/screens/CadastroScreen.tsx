@@ -72,6 +72,7 @@ export function Cadastrocreen({ route }) {
                     dados.conteudo = data.conteudo;
                     dados.id_categoria = data.id_categoria.id;
                     await DadosService.Incluir(dados);
+                    limparCampos()
                     setProcessando(false);
                     exibirMensagem("Cadastro realizado com sucesso");
                 }else{
@@ -81,6 +82,7 @@ export function Cadastrocreen({ route }) {
                     dados.conteudo = data.conteudo;
                     dados.id_categoria = data.id_categoria.id;
                     await DadosService.Atualizar(dados);
+                    limparCampos();
                     setProcessando(false);
                     exibirMensagem("Alteração realizada com sucesso");
                 }
@@ -92,6 +94,12 @@ export function Cadastrocreen({ route }) {
         }
     }
 
+    const limparCampos = () => {
+        setValue('id', 0);
+        setValue('conteudo', '');
+        setValue('id_categoria', 0);
+        setValue('titulo', '');
+    }
     const exibirMensagem = (m:string) => {
         setExibirMsg(true);
         setMsg(m);        
@@ -176,6 +184,7 @@ export function Cadastrocreen({ route }) {
                         }}
                         render={({ field: { onChange, onBlur, value } }) => (
                             <Dropdown 
+                            placeholder="Selecione uma categoria"
                             style={stylesCadastro.dropdown}
                             data={categorias}
                             search
@@ -269,6 +278,6 @@ const stylesCadastro = StyleSheet.create({
         borderColor: 'gray',
         borderWidth: 0.5,
         borderRadius: 8,
-        paddingHorizontal: 8,
+        paddingHorizontal: 8, backgroundColor: '#FFF',
     }
   });

@@ -35,11 +35,10 @@ const headerCustomizadoStyle = StyleSheet.create({
   container: {
     flexDirection: 'row',
     justifyContent: 'flex-start',
-    width: '90%',
-    borderBottomWidth: 1,
-    borderBottomColor: '#000000',
+    width: '100%',
     padding: 10,
     marginLeft: 10,
+    backgroundColor: Tema.corPrimaria,
   }, titulo: {
     fontSize: 25,
     alignSelf: 'flex-end',

@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect, Component, useMemo, useCallback } from 'react';
-import { Switch, Text, View, TextInput, Pressable, Alert, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
-import { Nota, Tema } from '../domain/enums';
+import { Switch, Text, View, TextInput, Pressable, Alert, ScrollView, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { Constantes, Nota, Tema } from '../domain/enums';
 import { QuadroNota } from '../components/QuadroNota';
 import { BotaoCirculo } from '../components/BotaoCirculo';
 import { useNavigation } from '@react-navigation/native';
@@ -17,33 +17,117 @@ export function Homecreen() {
     const [notas, setNotas] = useState<Nota[] | null>([])
     const navigation = useNavigation();
     const [processando, setProcessando] = useState<boolean>(false);
-    const [msg, setMsg] = useState<string>("");
+    const [msg, setMsg] = useState<string>('');
     const [exibirMsg, setExibirMsg] = useState<boolean>(false);
     const [exibirConfirmacaoExclusao, setExibirConfirmacaoExclusao] = useState<boolean>(false);
     const [atualizaTela, setAtualizaTela] = useState<boolean>(false);
-    const [notaSelecionada, setNotaSelecionada] = useState<number>(false);
+    const [notaSelecionada, setNotaSelecionada] = useState<number>(0);
+    const [page, setPage] = useState(1);
+    const [total, setTotal] = useState(1);
+    const [totalPaginas, setTotalPaginas] = useState(0);
+    const [carregandoMais, setCarregandoMais] = useState<boolean>(false);
+    const [termo, setTermo] = useState<string>('');
 
     useFocusEffect(
       useCallback(() => {
+        setPage(1);
         carregarNotas();
       }, [])
     );
 
-    const carregarNotas = async () => {
-      let lista:Nota[] = [];
-      setNotas([]);
+    const recarregarNotas = async(more:boolean) => {   
       try {
-        setProcessando(true);
-        setTimeout(async () => {
-          lista = await DadosService.GetNotas();
-          console.log(lista);
+        let lista:Nota[] = [];
+        if(more === false){
+          setNotas([]);
+          if(termo != ''){
+            const quantidade = await DadosService.ObterQuantidadeNotasFiltro(termo);
+            setTotal(quantidade);
+            const numeroPaginas = Math.ceil(quantidade / Constantes.limite);
+            setTotalPaginas(numeroPaginas);
+          }else{
+            const quantidade = await DadosService.ObterQuantidadeNotas();
+            setTotal(quantidade);
+            const numeroPaginas = Math.ceil(quantidade / Constantes.limite);
+            setTotalPaginas(numeroPaginas);
+          }
+        }
+
+        if(termo != ''){
+          lista = await DadosService.FiltrarNotas(termo, page);
+        }else{
+          lista = await DadosService.GetNotas(page);
+        }
+
+        if(more === true){
+          const listaAntiga = notas;
+          if(listaAntiga != null){
+            lista.forEach(x => {
+              if(listaAntiga.filter(y => y.id == x.id).length == 0){
+                listaAntiga.push(x);
+              }
+            });
+            setNotas(listaAntiga);
+          }
+        }else{
           setNotas(lista);
-          setProcessando(false);
-        }, (1000));
-      
+        }
       } catch (error) {
         console.error(error);
-        setProcessando(false);
+        exibirMensagem("Erro");
+      }
+    }
+
+    useEffect(() => {
+      if(page > 1){
+        carregarMais();
+      }
+  }, [page]);
+
+  const carregarMais = async() => {
+    try {
+      setCarregandoMais(true);
+      setTimeout(async () => {
+        await recarregarNotas(true);
+        setCarregandoMais(false);
+      }, (1000));
+    } catch (error) {
+      console.error(error);
+      exibirMensagem("Erro");
+    }
+  }
+
+  const fetchMoreData = () => {
+    if ( page < totalPaginas && carregandoMais === false ) {
+      setPage(page + 1);
+    }
+  }
+
+  const renderFooter = () => (
+    <View style={stylesHome.rodapeGrid}>
+        {carregandoMais && <ActivityIndicator size="large" color={Tema.corSecundaria} />}
+    </View>
+  )
+
+  const renderEmpty = () => (
+    <View style={stylesHome.rodapeGrid}>
+        <Text>Sem dados no momento</Text>
+    </View>
+)
+
+  
+
+    const carregarNotas = async () => {
+      try {
+        setProcessando(true);
+        setCarregandoMais(true);
+        setTimeout(async () => {
+          await recarregarNotas(false);
+          setProcessando(false);
+          setCarregandoMais(false);
+        }, (1000));
+      } catch (error) {
+        console.error(error);
         exibirMensagem("Erro");
       }
     };
@@ -53,7 +137,6 @@ export function Homecreen() {
     };
 
     const editarNota = async(id:number) => {
-      console.log("Editar");
       navigation.navigate("Cadastro", { id: id });
     };
 
@@ -75,7 +158,6 @@ export function Homecreen() {
     };
 
     const confirmaExcluirNota = async(id:number) => {
-      console.log("Confirmar Excluir");
       setExibirConfirmacaoExclusao(true);
       setNotaSelecionada(id);
       atualizarTela();
@@ -96,15 +178,22 @@ export function Homecreen() {
       setAtualizaTela(!atualizaTela);
     }
 
-    const FiltrarNotas = async (termo: string) => {
+    const FiltrarNotas = async (busca: string) => {
       let lista:Nota[] = [];
       setNotas([]);
       try {
+        setCarregandoMais(true);
+        setTermo(busca);
         setProcessando(true);
         setTimeout(async () => {
-          lista = await DadosService.FiltrarNotas(termo);
+          const quantidade = await DadosService.ObterQuantidadeNotasFiltro(busca);
+          const numeroPaginas = Math.ceil(quantidade / Constantes.limite);
+          setTotalPaginas(numeroPaginas);
+          setPage(1);
+          lista = await DadosService.FiltrarNotas(busca, 1);
           setNotas(lista);
           setProcessando(false);
+          setCarregandoMais(false);
         }, (1000));      
       } catch (error) {
         console.error(error);
@@ -117,10 +206,11 @@ export function Homecreen() {
         <View style={stylesHome.tela}>
             <HeaderCustomizado 
               titulo="Notas" 
-              navigation={navigation} />
-            <CampoPesquisa 
-              setProcessando={setProcessando} 
-              FiltrarNotas={FiltrarNotas} />
+              navigation={navigation}>
+                <CampoPesquisa 
+                setProcessando={setProcessando} 
+                FiltrarNotas={FiltrarNotas} />
+              </HeaderCustomizado>
             <FlatList 
             data={notas} 
             keyExtractor={(item, index) => item.id.toString()}
@@ -131,7 +221,11 @@ export function Homecreen() {
                 editar={() => editarNota(item.item.id)} 
                 excluir={() => confirmaExcluirNota(item.item.id)}   />
               </View>
-            } } />            
+            } } 
+            ListFooterComponent={renderFooter}
+            ListEmptyComponent={renderEmpty} 
+            onEndReachedThreshold={0.2}
+            onEndReached={fetchMoreData} />
             <BotaoCirculo click={adicionarNota} />
             {
               processando === true && 
@@ -206,5 +300,8 @@ const stylesHome = StyleSheet.create({
     borderRadius: '50%', 
     width: 55, 
     height: 55,
+  }, 
+  rodapeGrid: {
+    alignSelf: 'center',
   }
 });

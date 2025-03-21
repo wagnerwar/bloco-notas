@@ -75,19 +75,22 @@ const Excluir = async(id:number):Promise<boolean> => {
     }
 }
 
-const GetNotas = async (): Promise<Nota[]> => {
+const GetNotas = async (pagina:number): Promise<Nota[]> => {
     try {
         const db = await getDBConnection();
         await createTable(db);
         const todoItems: Nota[] = [];
-        const results = await db.executeSql(`SELECT id, titulo, conteudo, id_categoria FROM nota`);
+        const inicio = ( pagina > 1 ? ( ( pagina - 1 ) * Constantes.limite ) : 0 );
+        const query = `SELECT id, titulo, conteudo, id_categoria FROM nota limit ${inicio}, ${Constantes.limite}`;
+        console.log(query);
+        const results = await db.executeSql(query);
         if(results !== undefined){
             results.forEach(result => {
                 for (let index = 0; index < result.rows.length; index++) {
                     todoItems.push(result.rows.item(index))
                 }
             });
-        }        
+        }
         return todoItems;
     } catch (error) {
         console.error(error);
@@ -132,12 +135,13 @@ const Atualizar = async(nota:Nota):Promise<boolean> => {
     }
 }
 
-const FiltrarNotas = async (termo:string): Promise<Nota[]> => {
+const FiltrarNotas = async (termo:string, pagina: number): Promise<Nota[]> => {
     try {
         const db = await getDBConnection();
         await createTable(db);
         const todoItems: Nota[] = [];
-        const results = await db.executeSql(`SELECT id, titulo, conteudo FROM nota where titulo like '%${termo}%'`);
+        const inicio = ( pagina > 1 ? ( ( pagina - 1 ) * Constantes.limite ) : 0 );
+        const results = await db.executeSql(`SELECT id, titulo, conteudo FROM nota where titulo like '%${termo}%' limit ${inicio}, ${Constantes.limite}`);
         if(results !== undefined){
             results.forEach(result => {
                 for (let index = 0; index < result.rows.length; index++) {
@@ -152,12 +156,59 @@ const FiltrarNotas = async (termo:string): Promise<Nota[]> => {
     }
 };
 
-const GetCategorias = async (): Promise<Categoria[]> => {
+const ObterQuantidadeNotas = async (): Promise<number> => {
+    try {
+        const db = await getDBConnection();
+        await createTable(db);
+        let quantidade: number = 0;
+        const results = await db.executeSql(`SELECT count(*) as qtde FROM nota`);
+        if(results !== undefined){
+            if(results !== undefined){
+                results.forEach(result => {
+                    for (let index = 0; index < result.rows.length; index++) {
+                        quantidade = result.rows.item(index)['qtde'];
+                    }
+                });
+            }
+        }
+        return quantidade;
+    } catch (error) {
+        console.error(error);
+        throw Error('Failed to get notas !!!');
+    }
+};
+
+const ObterQuantidadeNotasFiltro = async (termo:string): Promise<number> => {
+    try {
+        const db = await getDBConnection();
+        await createTable(db);
+        let quantidade: number = 0;
+        const results = await db.executeSql(`SELECT count(*) as qtde FROM nota where titulo like '%${termo}%'`);
+        if(results !== undefined){
+            if(results !== undefined){
+                results.forEach(result => {
+                    for (let index = 0; index < result.rows.length; index++) {
+                        quantidade = result.rows.item(index)['qtde'];
+                    }
+                });
+            }
+        }
+        return quantidade;
+    } catch (error) {
+        console.error(error);
+        throw Error('Failed to get notas !!!');
+    }
+};
+
+const GetCategorias = async (pagina:number): Promise<Categoria[]> => {
     try {
         const db = await getDBConnection();
         await createTable(db);
         const todoItems: Categoria[] = [];
-        const results = await db.executeSql(`SELECT id, nome, conteudo, ativo FROM categoria`);
+        const inicio = ( pagina > 1 ? ( ( pagina - 1 ) * Constantes.limite ) : 0 );
+        const query = `SELECT id, nome, conteudo, ativo FROM categoria limit ${inicio}, ${Constantes.limite}`;
+        console.log(query);
+        const results = await db.executeSql(query);
         if(results !== undefined){
             results.forEach(result => {
                 for (let index = 0; index < result.rows.length; index++) {
@@ -258,6 +309,28 @@ const GetCategoriasAtivas = async (): Promise<Categoria[]> => {
     }
 };
 
+const ObterQuantidadeCategorias = async (): Promise<number> => {
+    try {
+        const db = await getDBConnection();
+        await createTable(db);
+        let quantidade: number = 0;
+        const results = await db.executeSql(`SELECT count(*) as qtde FROM categoria`);
+        if(results !== undefined){
+            if(results !== undefined){
+                results.forEach(result => {
+                    for (let index = 0; index < result.rows.length; index++) {
+                        quantidade = result.rows.item(index)['qtde'];
+                    }
+                });
+            }
+        }
+        return quantidade;
+    } catch (error) {
+        console.error(error);
+        throw Error('Failed to get notas !!!');
+    }
+};
+
 export const DadosService = {
     Incluir,
     GetNotas,
@@ -270,4 +343,7 @@ export const DadosService = {
     IncluirCategoria, 
     AtualizarCategoria, 
     GetCategoriasAtivas,
+    ObterQuantidadeNotas, 
+    ObterQuantidadeNotasFiltro, 
+    ObterQuantidadeCategorias,
 };

@@ -71,6 +71,7 @@ export function CadastroCategoriaScreen({ route }) {
                     await DadosService.IncluirCategoria(dadosCategoria);
                     setProcessando(false)
                     exibirMensagem("Cadastro realizado com sucesso");
+                    limparCampos();
                 }else{
                     let dadosCategoria: Categoria = {};
                     dadosCategoria.id = data.id;
@@ -84,6 +85,7 @@ export function CadastroCategoriaScreen({ route }) {
                     await DadosService.AtualizarCategoria(dadosCategoria);
                     setProcessando(false);
                     exibirMensagem("Alteração realizada com sucesso");
+                    limparCampos();
                 }
             }, (3000));
         } catch (error) {
@@ -98,9 +100,16 @@ export function CadastroCategoriaScreen({ route }) {
         setMsg(m);
     }
 
+    const limparCampos = () => {
+        setValue('conteudo', '');
+        setValue('nome', '');
+        setValue('id', 0);
+        setValue('ativo', false)
+    }
+
     const redirecionarTelaInicial = () => {
         ocultarMensagem();
-        navigation.goBack();
+        navigation.navigate("Categoria", {});
     }
 
     const ocultarMensagem = () => {

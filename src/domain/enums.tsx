@@ -7,7 +7,8 @@ interface TemaProps{
 
 interface ConstantesProps{
     ativo: number,
-    inativo: number
+    inativo: number, 
+    limite: number
 }
 
 
@@ -34,5 +35,6 @@ export interface Categoria{
 
 export const Constantes:ConstantesProps = {
     ativo: 1,
-    inativo: 0
+    inativo: 0,
+    limite: 10,
 }

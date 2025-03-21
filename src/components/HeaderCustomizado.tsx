@@ -24,9 +24,13 @@ export function HeaderCustomizado(props: any) {
                 onPress={AbrirFechar}>
                 <IconeMenu width={35} height={35} />
             </TouchableOpacity>
-            <Text style={headerCustomizadoStyle.titulo}>
+            {
+              ( props.children ?
+              props.children :
+              <Text style={headerCustomizadoStyle.titulo}>
                 { title }
-            </Text>
+              </Text>  )
+            }
         </View> 
     );
 }
@@ -35,16 +39,17 @@ const headerCustomizadoStyle = StyleSheet.create({
   container: {
     flexDirection: 'row',
     justifyContent: 'flex-start',
-    width: '90%',
-    borderBottomWidth: 1,
-    borderBottomColor: '#000000',
+    width: '100%',
     padding: 10,
-    marginLeft: 10,
-  }, titulo: {
+    marginLeft: 10, 
+    backgroundColor: Tema.corPrimaria,
+  },
+  titulo: {
     fontSize: 25,
     alignSelf: 'flex-end',
-  }, botao: {
+  },
+  botao: {
     alignSelf: 'flex-start',
-    width: '20%'
-  }
+    width: '20%',
+  },
 });
