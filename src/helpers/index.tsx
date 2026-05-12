@@ -1,9 +1,9 @@
-import React, { useContext, useState, useEffect, Component, useMemo } from 'react';
-import { ToastAndroid } from 'react-native';
+import { ToastAndroid, Platform, Alert } from 'react-native';
 
-export const exibirAviso = (m:string) => {
-    ToastAndroid.show(
-        m,
-        ToastAndroid.SHORT
-    );
+export const exibirAviso = (m: string) => {
+    if (Platform.OS === 'android') {
+        ToastAndroid.show(m, ToastAndroid.SHORT);
+    } else {
+        Alert.alert('Aviso', m);
+    }
 }

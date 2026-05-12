@@ -1,6 +1,5 @@
 import React from 'react';
 import {  Text, View, StyleSheet, Pressable } from 'react-native';
-import { Nota } from '../domain/enums';
 import { Tema } from '../domain/enums';
 import TrashIcone from "../assets/trash.svg";
 import EditIcone from "../assets/edit.svg";
@@ -53,7 +52,6 @@ const stylesHome = StyleSheet.create({
     alignItems: 'flex-start', 
     justifyContent: 'space-between', 
     borderRadius: 15, 
-    height: 'auto', 
     flexDirection: 'row'
   },
   titulo: {

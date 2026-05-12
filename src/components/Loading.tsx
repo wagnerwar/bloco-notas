@@ -1,14 +1,8 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { View, StyleSheet, ActivityIndicator, Text } from 'react-native';
 import { Tema } from '../domain/enums';
 
 export function Loading(props) {
-
-    useEffect(function(){
-
-    }, []);
-
-
     return (       
         <View style={stylesloading.container}>
             <Text style={stylesloading.texto}>{props.texto}</Text>

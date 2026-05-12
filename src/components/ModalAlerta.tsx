@@ -9,24 +9,25 @@ export function ModalAlerta(props) {
     const confirmacao:boolean = props.confirmacao || false;
     
     useEffect(function(){
-        console.log(exibir);
-        if(exibir == true){
+        if(exibir){
             setModalVisible(true);
+        } else {
+            setModalVisible(false);
         }
-    }, []);
+    }, [exibir]);
 
     const handleClick = async() => {
+        setModalVisible(false);
         if(props.click){
             props.click();
         }
-        setModalVisible(!modalVisible);
     }
 
     const handleFecharClick = async() => {
+        setModalVisible(false);
         if(props.fechar){
             props.fechar();
         }
-        setModalVisible(!modalVisible);
     }
 
     return ( 
@@ -37,7 +38,7 @@ export function ModalAlerta(props) {
             transparent={false} 
           visible={modalVisible}
           onRequestClose={() => {
-            setModalVisible(!modalVisible);
+            setModalVisible(false);
           }}>
                 <View style={props.style ? [stylesModalAlerta.conteudo, props.style] : stylesModalAlerta.conteudo}>
                     {

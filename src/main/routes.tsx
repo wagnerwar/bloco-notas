@@ -1,22 +1,18 @@
 
 import React from 'react';
 import { Homecreen } from '../screens/HomeScreen';
-import { createNativeStackNavigator, create } from '@react-navigation/native-stack';
-import { NavigationContainer, NavigationIndependentTree } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Cadastrocreen } from '../screens/CadastroScreen';
-import { createDrawerNavigator, DrawerItem } from '@react-navigation/drawer';
+import { createDrawerNavigator } from '@react-navigation/drawer';
 import {
   createStaticNavigation,
-  useNavigation,
 } from '@react-navigation/native';
 import { CategoriaScreen } from '../screens/CategoriasScreen';
 import { CadastroCategoriaScreen } from '../screens/CadastroCategoriaScreen';
-import { StyleSheet } from 'react-native';
 import IconeNota from '../assets/note.svg';
 import IconeCat from '../assets/cat.svg';
 import { Tema } from '../domain/enums';
 
-const Stack = createNativeStackNavigator();
 const MyDrawer = createDrawerNavigator({
   screens: {
     Home: {

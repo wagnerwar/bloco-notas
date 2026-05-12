@@ -1,5 +1,5 @@
-import React, { useContext, useState, useEffect, Component, useMemo, useCallback } from 'react';
-import { Switch, Text, View, TextInput, Pressable, Alert, ScrollView, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Text, View, StyleSheet, ActivityIndicator } from 'react-native';
 import { Constantes, Nota, Tema } from '../domain/enums';
 import { QuadroNota } from '../components/QuadroNota';
 import { BotaoCirculo } from '../components/BotaoCirculo';
@@ -20,7 +20,6 @@ export function Homecreen() {
     const [msg, setMsg] = useState<string>('');
     const [exibirMsg, setExibirMsg] = useState<boolean>(false);
     const [exibirConfirmacaoExclusao, setExibirConfirmacaoExclusao] = useState<boolean>(false);
-    const [atualizaTela, setAtualizaTela] = useState<boolean>(false);
     const [notaSelecionada, setNotaSelecionada] = useState<number>(0);
     const [page, setPage] = useState(1);
     const [total, setTotal] = useState(1);
@@ -60,15 +59,12 @@ export function Homecreen() {
         }
 
         if(more === true){
-          const listaAntiga = notas;
-          if(listaAntiga != null){
-            lista.forEach(x => {
-              if(listaAntiga.filter(y => y.id == x.id).length == 0){
-                listaAntiga.push(x);
-              }
-            });
-            setNotas(listaAntiga);
-          }
+          setNotas(prev => {
+            if (prev == null) return lista;
+            const existingIds = new Set(prev.map(n => n.id));
+            const newItems = lista.filter(x => !existingIds.has(x.id));
+            return [...prev, ...newItems];
+          });
         }else{
           setNotas(lista);
         }
@@ -87,13 +83,12 @@ export function Homecreen() {
   const carregarMais = async() => {
     try {
       setCarregandoMais(true);
-      setTimeout(async () => {
-        await recarregarNotas(true);
-        setCarregandoMais(false);
-      }, (1000));
+      await recarregarNotas(true);
     } catch (error) {
       console.error(error);
       exibirMensagem("Erro");
+    } finally {
+      setCarregandoMais(false);
     }
   }
 
@@ -121,14 +116,13 @@ export function Homecreen() {
       try {
         setProcessando(true);
         setCarregandoMais(true);
-        setTimeout(async () => {
-          await recarregarNotas(false);
-          setProcessando(false);
-          setCarregandoMais(false);
-        }, (1000));
+        await recarregarNotas(false);
       } catch (error) {
         console.error(error);
         exibirMensagem("Erro");
+      } finally {
+        setProcessando(false);
+        setCarregandoMais(false);
       }
     };
 
@@ -142,27 +136,22 @@ export function Homecreen() {
 
     const excluirNota = async() => {
       try {
-
         setExibirConfirmacaoExclusao(false);
         setProcessando(true);
-        setTimeout(async () => {
-          await DadosService.Excluir(notaSelecionada);
-          await carregarNotas();
-          setProcessando(false);
-        }, (2000));      
+        await DadosService.Excluir(notaSelecionada);
+        await carregarNotas();
       } catch (error) {
         console.error(error);
-        setProcessando(false);
         exibirMensagem("Erro");
-      } 
+      } finally {
+        setProcessando(false);
+      }
     };
 
     const confirmaExcluirNota = async(id:number) => {
       setExibirConfirmacaoExclusao(true);
       setNotaSelecionada(id);
-      atualizarTela();
     };
-
 
     const exibirMensagem = (m:string) => {
       setExibirMsg(true);
@@ -174,31 +163,24 @@ export function Homecreen() {
       setMsg("");
     }
 
-    const atualizarTela = () => {
-      setAtualizaTela(!atualizaTela);
-    }
-
     const FiltrarNotas = async (busca: string) => {
-      let lista:Nota[] = [];
-      setNotas([]);
       try {
+        setNotas([]);
         setCarregandoMais(true);
         setTermo(busca);
         setProcessando(true);
-        setTimeout(async () => {
-          const quantidade = await DadosService.ObterQuantidadeNotasFiltro(busca);
-          const numeroPaginas = Math.ceil(quantidade / Constantes.limite);
-          setTotalPaginas(numeroPaginas);
-          setPage(1);
-          lista = await DadosService.FiltrarNotas(busca, 1);
-          setNotas(lista);
-          setProcessando(false);
-          setCarregandoMais(false);
-        }, (1000));      
+        const quantidade = await DadosService.ObterQuantidadeNotasFiltro(busca);
+        const numeroPaginas = Math.ceil(quantidade / Constantes.limite);
+        setTotalPaginas(numeroPaginas);
+        setPage(1);
+        const lista = await DadosService.FiltrarNotas(busca, 1);
+        setNotas(lista);
       } catch (error) {
         console.error(error);
-        setProcessando(false);
         exibirMensagem("Erro");
+      } finally {
+        setProcessando(false);
+        setCarregandoMais(false);
       }
     };
 
@@ -249,7 +231,6 @@ export function Homecreen() {
                 </View> 
               </ModalAlerta>
             }
-            <View style={stylesHome.oculto}>{atualizaTela}</View>
         </View>
     );
 }
@@ -297,7 +278,7 @@ const stylesHome = StyleSheet.create({
     alignSelf: 'flex-end',
     backgroundColor: '#FFF',
     padding: 10,
-    borderRadius: '50%', 
+    borderRadius: 28,
     width: 55, 
     height: 55,
   }, 

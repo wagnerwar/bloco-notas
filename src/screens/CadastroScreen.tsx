@@ -1,5 +1,5 @@
-import React, { useContext, useState, useEffect, Component, useMemo } from 'react';
-import { Switch, Text, View, TextInput, Pressable, Alert, ScrollView, StyleSheet, TouchableHighlight, ToastAndroid } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { Text, View, TextInput, ScrollView, StyleSheet, TouchableHighlight } from 'react-native';
 import { Nota, Tema } from '../domain/enums';
 import { useNavigation } from '@react-navigation/native';
 import { useForm, SubmitHandler, Controller, FormState } from "react-hook-form"
@@ -8,7 +8,6 @@ import { ModalAlerta } from '../components/ModalAlerta';
 import { DadosService } from '../services/DadosService';
 import { Dropdown } from 'react-native-element-dropdown';
 import { Categoria } from '../domain/enums';
-import Toast from 'react-native-toast-message';
 import { exibirAviso } from '../helpers';
 import { HeaderCustomizadoInterno } from '../components/HeaderCustomizadoInterno';
 
@@ -33,7 +32,7 @@ export function Cadastrocreen({ route }) {
     })
 
     useEffect(function(){
-        const { id }  = route.params;
+        const id = route.params?.id;
         recuperarDados(id);
     }, []);
 
@@ -62,35 +61,34 @@ export function Cadastrocreen({ route }) {
     }
 
     const onSubmit = async (data) => {
-        console.log(data)
-        setProcessando(true)
+        setProcessando(true);
         try {
-            setTimeout(async () => {
-                if(data.id == 0){
-                    let dados:Nota = {};
-                    dados.titulo = data.titulo;
-                    dados.conteudo = data.conteudo;
-                    dados.id_categoria = data.id_categoria.id;
-                    await DadosService.Incluir(dados);
-                    limparCampos()
-                    setProcessando(false);
-                    exibirMensagem("Cadastro realizado com sucesso");
-                }else{
-                    let dados:Nota = {};
-                    dados.id = data.id;
-                    dados.titulo = data.titulo;
-                    dados.conteudo = data.conteudo;
-                    dados.id_categoria = data.id_categoria.id;
-                    await DadosService.Atualizar(dados);
-                    limparCampos();
-                    setProcessando(false);
-                    exibirMensagem("Alteração realizada com sucesso");
-                }
-            }, (3000));
+            const idCategoria = typeof data.id_categoria === 'object'
+                ? data.id_categoria.id
+                : data.id_categoria;
+            if(data.id == 0){
+                let dados:Nota = {} as Nota;
+                dados.titulo = data.titulo;
+                dados.conteudo = data.conteudo;
+                dados.id_categoria = idCategoria;
+                await DadosService.Incluir(dados);
+                limparCampos();
+                exibirMensagem("Cadastro realizado com sucesso");
+            }else{
+                let dados:Nota = {} as Nota;
+                dados.id = data.id;
+                dados.titulo = data.titulo;
+                dados.conteudo = data.conteudo;
+                dados.id_categoria = idCategoria;
+                await DadosService.Atualizar(dados);
+                limparCampos();
+                exibirMensagem("Alteração realizada com sucesso");
+            }
         } catch (error) {
             console.error(error);
-            setProcessando(false);
             exibirAviso("Erro ao executar operação");
+        } finally {
+            setProcessando(false);
         }
     }
 

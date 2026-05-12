@@ -1,6 +1,6 @@
-import React, { useContext, useState, useEffect, Component, useMemo, useCallback } from 'react';
-import { Switch, Text, View, TextInput, Pressable, Alert, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
-import { Nota, Tema } from '../domain/enums';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Text, View, StyleSheet, TouchableOpacity } from 'react-native';
+import { Tema } from '../domain/enums';
 import { QuadroNota } from '../components/QuadroNota';
 import { BotaoCirculo } from '../components/BotaoCirculo';
 import { useNavigation } from '@react-navigation/native';
@@ -24,8 +24,7 @@ export function CategoriaScreen() {
     const [msg, setMsg] = useState<string>("");
     const [exibirMsg, setExibirMsg] = useState<boolean>(false);
     const [exibirConfirmacaoExclusao, setExibirConfirmacaoExclusao] = useState<boolean>(false);
-    const [atualizaTela, setAtualizaTela] = useState<boolean>(false);
-    const [categoriaSelecionada, setCategoriaSelecionada] = useState<number>(false);
+    const [categoriaSelecionada, setCategoriaSelecionada] = useState<number>(0);
     const [page, setPage] = useState(1);
     const [total, setTotal] = useState(1);
     const [totalPaginas, setTotalPaginas] = useState(0);
@@ -43,7 +42,7 @@ export function CategoriaScreen() {
         let lista:Categoria[] = [];
         if(more === false){
             setCategorias([]);
-            const quantidade = await DadosService.ObterQuantidadeNotas();
+            const quantidade = await DadosService.ObterQuantidadeCategorias();
             setTotal(quantidade);
             const numeroPaginas = Math.ceil(quantidade / Constantes.limite);
             setTotalPaginas(numeroPaginas);
@@ -51,15 +50,12 @@ export function CategoriaScreen() {
         lista = await DadosService.GetCategorias(page);
 
         if(more === true){
-            const listaAntiga = categorias;
-            if(listaAntiga != null){
-            lista.forEach(x => {
-                if(listaAntiga.filter(y => y.id == x.id).length == 0){
-                listaAntiga.push(x);
-                }
+            setCategorias(prev => {
+                if (prev == null) return lista;
+                const existingIds = new Set(prev.map(c => c.id));
+                const newItems = lista.filter(x => !existingIds.has(x.id));
+                return [...prev, ...newItems];
             });
-            setCategorias(listaAntiga);
-            }
         }else{
             setCategorias(lista);
         }
@@ -82,14 +78,13 @@ export function CategoriaScreen() {
         try {
             setProcessando(true);
             setCarregandoMais(true);
-            setTimeout(async () => {
             await recarregarCategorias(false);
-            setProcessando(false);
-            setCarregandoMais(false);
-            }, (1000));
       } catch (error) {
         console.error(error);
         exibirMensagem("Erro");
+      } finally {
+        setProcessando(false);
+        setCarregandoMais(false);
       }
     }
 
@@ -102,13 +97,12 @@ export function CategoriaScreen() {
     const carregarMais = async() => {
         try {
           setCarregandoMais(true);
-          setTimeout(async () => {
-            await recarregarCategorias(true);
-            setCarregandoMais(false);
-          }, (1000));
+          await recarregarCategorias(true);
         } catch (error) {
           console.error(error);
           exibirMensagem("Erro");
+        } finally {
+          setCarregandoMais(false);
         }
     }
 
@@ -121,28 +115,21 @@ export function CategoriaScreen() {
         try {
             setExibirConfirmacaoExclusao(false);
             setProcessando(true);
-            setTimeout(async () => {
-            
+            await DadosService.ExcluirCategoria(categoriaSelecionada);
             await carregarCategorias();
-            setProcessando(false);
-        }, (2000));      
         } catch (error) {
         console.error(error);
-        setProcessando(false);
         exibirMensagem("Erro");
-        } 
+        } finally {
+            setProcessando(false);
+        }
     };
     
     const confirmaExcluirCategoria = async(id:number) => {
-        console.log("Confirmar Excluir");
         setExibirConfirmacaoExclusao(true);
         setCategoriaSelecionada(id);
-        atualizarTela();
     };
     
-    const atualizarTela = () => {
-        setAtualizaTela(!atualizaTela);
-    }
 
      const renderFooter = () => (
         <View style={stylesCategoria.rodapeGrid}>
@@ -206,7 +193,6 @@ export function CategoriaScreen() {
                 </View> 
                 </ModalAlerta>
             }
-            <View style={stylesCategoria.oculto}>{atualizaTela}</View>
             
         </View>
     );

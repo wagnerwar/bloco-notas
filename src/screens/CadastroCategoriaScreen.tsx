@@ -1,12 +1,11 @@
-import React, { useContext, useState, useEffect, Component, useMemo } from 'react';
-import { Switch, Text, View, TextInput, Pressable, Alert, ScrollView, StyleSheet, TouchableHighlight } from 'react-native';
-import { Categoria, Nota, Tema } from '../domain/enums';
+import React, { useState, useEffect } from 'react';
+import { Text, View, TextInput, ScrollView, StyleSheet, TouchableHighlight } from 'react-native';
+import { Categoria, Tema } from '../domain/enums';
 import { useNavigation } from '@react-navigation/native';
 import { useForm, SubmitHandler, Controller, FormState } from "react-hook-form"
 import { Loading } from '../components/Loading';
 import { ModalAlerta } from '../components/ModalAlerta';
 import { DadosService } from '../services/DadosService';
-import CheckBox from '@react-native-community/checkbox';
 import BouncyCheckbox from "react-native-bouncy-checkbox";
 import { HeaderCustomizadoInterno } from '../components/HeaderCustomizadoInterno';
 
@@ -15,7 +14,6 @@ export function CadastroCategoriaScreen({ route }) {
     const [processando, setProcessando] = useState<boolean>(false);
     const [msg, setMsg] = useState<string>("");
     const [exibirMsg, setExibirMsg] = useState<boolean>(false);
-    const [ativo, setAtivo] = useState<boolean>(false);
     const {
         control,
         handleSubmit,
@@ -41,57 +39,44 @@ export function CadastroCategoriaScreen({ route }) {
     }, []);
     
     const recuperarDados = async(id:number) => {
-        console.log(id);
         if(id){
             setValue('id', id);
             const dados = await DadosService.GetCategoria(id);
-            console.log(dados);
             if(dados != null){
                 setValue('conteudo', dados.conteudo);
                 setValue('nome', dados.nome);
                 setValue('id', dados.id);
+                setValue('ativo', dados.ativo === 1);
             } 
         }
     }
 
     const onSubmit = async (data) => {
-        console.log(data)
-        setProcessando(true)
+        setProcessando(true);
         try {
-            setTimeout(async () => {
-                if(data.id == 0){
-                    let dadosCategoria: Categoria = {};
-                    dadosCategoria.conteudo = data.conteudo;
-                    dadosCategoria.nome = data.nome;
-                    if(data.ativo == true){
-                        dadosCategoria.ativo = 1;
-                    }else{
-                        dadosCategoria.ativo = 0;
-                    }
-                    await DadosService.IncluirCategoria(dadosCategoria);
-                    setProcessando(false)
-                    exibirMensagem("Cadastro realizado com sucesso");
-                    limparCampos();
-                }else{
-                    let dadosCategoria: Categoria = {};
-                    dadosCategoria.id = data.id;
-                    dadosCategoria.conteudo = data.conteudo;
-                    dadosCategoria.nome = data.nome;
-                    if(data.ativo == true){
-                        dadosCategoria.ativo = 1;
-                    }else{
-                        dadosCategoria.ativo = 0;
-                    }
-                    await DadosService.AtualizarCategoria(dadosCategoria);
-                    setProcessando(false);
-                    exibirMensagem("Alteração realizada com sucesso");
-                    limparCampos();
-                }
-            }, (3000));
+            if(data.id == 0){
+                let dadosCategoria: Categoria = {} as Categoria;
+                dadosCategoria.conteudo = data.conteudo;
+                dadosCategoria.nome = data.nome;
+                dadosCategoria.ativo = data.ativo ? 1 : 0;
+                await DadosService.IncluirCategoria(dadosCategoria);
+                exibirMensagem("Cadastro realizado com sucesso");
+                limparCampos();
+            }else{
+                let dadosCategoria: Categoria = {} as Categoria;
+                dadosCategoria.id = data.id;
+                dadosCategoria.conteudo = data.conteudo;
+                dadosCategoria.nome = data.nome;
+                dadosCategoria.ativo = data.ativo ? 1 : 0;
+                await DadosService.AtualizarCategoria(dadosCategoria);
+                exibirMensagem("Alteração realizada com sucesso");
+                limparCampos();
+            }
         } catch (error) {
             console.error(error);
-            setProcessando(false);
             exibirMensagem("Erro ao executar operação");
+        } finally {
+            setProcessando(false);
         }
     }
 
@@ -169,10 +154,7 @@ export function CadastroCategoriaScreen({ route }) {
                     </Text>
                     <Controller
                         control={control}
-                        rules={{
-                        required: true,
-                        }}
-                        render={({ field: { onChange, onBlur, value } }) => (
+                        render={({ field: { onChange, value } }) => (
                             <BouncyCheckbox innerIconStyle={stylesCadastroCategoria.estiloIconeCheckBox}
                             fillColor={Tema.corSecundaria} 
                             size={30}

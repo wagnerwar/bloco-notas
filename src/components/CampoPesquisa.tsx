@@ -1,13 +1,10 @@
 import React from 'react';
 import {  
-  Text, 
   View, 
   StyleSheet, 
-  Pressable, 
   TextInput, 
   TouchableOpacity } from 'react-native';
 import IconeSearch from '../assets/search.svg';
-import { useForm, SubmitHandler, Controller, FormState } from "react-hook-form"
 import { useState } from 'react';
 
 export function CampoPesquisa(props:any) {
@@ -15,18 +12,16 @@ export function CampoPesquisa(props:any) {
 
   const onPressSearch = async function(){
     try {
-      console.log(textoPesquisa);
       if(props.setProcessando){
         props.setProcessando(true);
       }
-      setTimeout(async () => {
-        if(props.FiltrarNotas){
-          await props.FiltrarNotas(textoPesquisa);
-        }        
-        setTextoPesquisa("");
-      }, (2000));
+      if(props.FiltrarNotas){
+        await props.FiltrarNotas(textoPesquisa);
+      }
+      setTextoPesquisa("");
     } catch (error) {
       console.error(error);
+    } finally {
       if(props.setProcessando){
         props.setProcessando(false);
       }
@@ -66,7 +61,7 @@ const stylesCampoPesquisa = StyleSheet.create({
         alignSelf: 'flex-end',
         backgroundColor: '#FFF',
         padding: 10,
-        borderRadius: '50%', 
+        borderRadius: 28,
         width: 55, 
         height: 55,
       }
