@@ -9,6 +9,7 @@ import {
 } from '@react-navigation/native';
 import { CategoriaScreen } from '../screens/CategoriasScreen';
 import { CadastroCategoriaScreen } from '../screens/CadastroCategoriaScreen';
+import { OrientacoesScreen } from '../screens/OrientacoesScreen';
 import IconeNota from '../assets/note.svg';
 import IconeCat from '../assets/cat.svg';
 import { Tema } from '../domain/enums';
@@ -58,7 +59,20 @@ const MyDrawer = createDrawerNavigator({
         drawerType: 'slide',
         drawerItemStyle: { display: 'none' },
       },
-    }
+    },
+    Orientacoes: {
+      screen: OrientacoesScreen,
+      options: {
+        title: 'Orientações gerais',
+        headerShown: false,
+        drawerType: 'slide',
+        drawerStyle: {margin: 10, marginTop: 15, paddingTop: 5},
+        drawerActiveTintColor: Tema.corTexto,
+        drawerActiveBackgroundColor: Tema.corPrimaria,
+        drawerIcon: ({focused, size}) => (
+          <IconeCat width={35} height={35} /> ),
+      },
+    },
   },
 });
 
