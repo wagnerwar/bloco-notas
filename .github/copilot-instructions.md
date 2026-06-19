@@ -42,6 +42,11 @@ src/
 ├── helpers/         # Funções utilitárias (ex: exibirAviso)
 ├── main/            # Configuração de rotas (routes.tsx)
 ├── screens/         # Telas da aplicação
+│   ├── CadastroCategoriaScreen.tsx
+│   ├── CadastroScreen.tsx
+│   ├── CategoriasScreen.tsx
+│   ├── HomeScreen.tsx
+│   └── OrientacoesScreen.tsx
 └── services/        # Camada de acesso a dados (DadosService.tsx)
 ```
 
@@ -56,7 +61,7 @@ src/
 
 - Drawer Navigator (`@react-navigation/drawer`) como navegação principal
 - Stack Navigator (`@react-navigation/native-stack`) para fluxos de cadastro
-- Telas visíveis no drawer: **Home (Notas)** e **Categorias**
+- Telas visíveis no drawer: **Home (Notas)**, **Categorias** e **Orientações gerais**
 - Telas ocultas no drawer: **Cadastro** e **CadastroCategoria**
 
 ## Domínio (`src/domain/enums.tsx`)

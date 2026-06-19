@@ -34,8 +34,20 @@ export function Homecreen() {
       }, [])
     );
 
+    const avaliar = async() => {
+      let x = 15;
+
+        if (x > 10) {
+            // ...
+        } else if (x > 10 && x < 20) {
+            // Sobrepôs! Se x for maior que 10, já caiu no primeiro IF. 
+            // Esse else if é impossível de ser atingido.
+        }
+    }
+
     const recarregarNotas = async(more:boolean) => {   
       try {
+        await avaliar();
         let lista:Nota[] = [];
         if(more === false){
           setNotas([]);
