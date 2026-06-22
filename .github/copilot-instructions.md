@@ -80,6 +80,10 @@ src/
 - Sem gerenciador de estado global (não usa Redux, Zustand nem Context API)
 - Entry point da navegação: `App.tsx` → `RouterDraw` → `NavigationDrawer`
 
+## Restrições
+- Interfaces, tipos e constantes globais devem estar apenas na pasta domain.
+- A estrutura de pastas deve ser respeitada
+
 ## Dependências Principais
 
 | Pacote | Finalidade |

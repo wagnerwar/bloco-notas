@@ -12,5 +12,6 @@ export interface Teste{
     id: number,
     titulo: string,
     conteudo: string,
-    id_categoria: number
+    id_categoria: number, 
+    teste: string
 }
