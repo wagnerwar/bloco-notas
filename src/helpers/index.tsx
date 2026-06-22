@@ -7,3 +7,10 @@ export const exibirAviso = (m: string) => {
         Alert.alert('Aviso', m);
     }
 }
+
+export interface Teste{
+    id: number,
+    titulo: string,
+    conteudo: string,
+    id_categoria: number
+}
