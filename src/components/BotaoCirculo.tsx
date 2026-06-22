@@ -30,7 +30,7 @@ const stylesBotaoIncluir = StyleSheet.create({
   botaoCirculo: {
     backgroundColor: Tema.corPrimaria,
     padding: 10,
-    borderRadius: 33,
+    borderRadius: 35,
     width: 55, 
     height: 55,
   }
