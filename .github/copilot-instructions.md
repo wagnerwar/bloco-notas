@@ -81,8 +81,7 @@ src/
 - Entry point da navegação: `App.tsx` → `RouterDraw` → `NavigationDrawer`
 
 ## Restrições
-- Interfaces, tipos e constantes globais devem estar apenas na pasta domain.
-- A estrutura de pastas deve ser respeitada
+- A estrutura de pastas deve ser respeitada. Por exemplo: interface não pode estar dentro da pasta helpers. Pois, foi convencionado que interfaces devem estar dentro da pasta domain. 
 
 ## Dependências Principais
 
