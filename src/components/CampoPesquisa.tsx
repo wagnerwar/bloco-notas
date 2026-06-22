@@ -44,7 +44,7 @@ export function CampoPesquisa(props:any) {
 const stylesCampoPesquisa = StyleSheet.create({
     inputPesquisa: {
         alignSelf: 'flex-start',
-        fontSize: 20, 
+        fontSize: 21, 
         height: 50,
       },
       pesquisa: {
